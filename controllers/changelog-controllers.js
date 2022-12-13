@@ -16,6 +16,33 @@ const getChangelog = async (req, res, next) => {
   }
   res.json({changelogs: changelogs.map(changelog => changelog.toObject({ getters: true }))});
 };
+const getLogsByProduct = async (req, res, next) => {
+    let changelogs;
+    const {product} = req.body;
+    try {
+      changelogs = await Changelog.find({product: product});
+    } catch (err) {
+      const error = new HttpError(
+        'Fetching changelogs failed, please try again later.',
+        500
+      );
+      return next(error);
+    }
+  
+    if(changelogs) {
+      console.log("changelog found");
+      console.log(changelogs);
+      res.json({changelogs: changelogs.map(changelog => changelog.toObject({ getters: true }))});
+    }
+    else {
+  
+      const error = new HttpError(
+        'Changelog doesn\'t exist already, please try again.',
+        404
+      );
+      return next(error);
+    }
+  };
 const getOne = async (req, res, next) => {
   let changelog;
   const {time} = req.body;
@@ -126,7 +153,7 @@ const toggleChangelog = async (req, res, next) => {
   }
 
   console.log("toggle successful");
-
+  console.log(!logObj.crosschecked);
 
   res.status(201).json({changelog: newChangelog.toObject({ getters: true })});
 
@@ -192,6 +219,7 @@ exports.getChangelog = getChangelog;
 exports.addChangelog = addChangelog;
 
 exports.getOne = getOne;
+exports.getLogsByProduct = getLogsByProduct;
 exports.delChangelog = delChangelog;
 exports.toggleChangelog = toggleChangelog;
 

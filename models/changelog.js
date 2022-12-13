@@ -8,8 +8,8 @@ const stockSchema = new Schema({
     time: { type: String, required: true, unique: true  },
     product: { type: String, required: true },
     operation: { type: String, required: true },
-    changeValue: { type: Number, required: true },
-    oldValue: { type: Number, required: true },
+    changeValue: { type: String, required: true },
+    oldValue: { type: String, required: true },
     crosschecked: { type: Boolean, required: true },
 });
 
