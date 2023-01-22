@@ -3,6 +3,7 @@ const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
 const Stock = require('../models/stock');
 
+const excel = require('excel4node');
 const getStocks = async (req, res, next) => {
   let stocks;
   try {
@@ -16,6 +17,35 @@ const getStocks = async (req, res, next) => {
   }
   res.json({stocks: stocks.map(stock => stock.toObject({ getters: true }))});
 };
+const downloadStocks = async (req, res, next) => {
+    let stocks;
+    
+    const event = new Date(Date.now());
+    var time = event.toLocaleString('en-GB', { timeZone: 'IST' });
+
+    const workbook = new excel.Workbook();
+    const worksheet = workbook.addWorksheet(`Stock`);
+
+    try {
+      stocks = await Stock.find({});
+      stocks.forEach((item, i) => {
+        worksheet
+            .cell(i+1, 1).string(item.product)
+            .cell(i+1, 2).string(item.quantity);
+
+      });
+
+      workbook.write(`Godown_${time}.xlsx`);
+    } catch (err) {
+      const error = new HttpError(
+        'Fetching stocks failed, please try again later.',
+        500
+      );
+      return next(error);
+    }
+    res.json({"Result": "Downloaded file"});
+  };
+
 const getOne = async (req, res, next) => {
   let stock;
   const {product} = req.body;
@@ -166,4 +196,5 @@ exports.addStock = addStock;
 
 exports.getOne = getOne;
 exports.delStock = delStock;
+exports.downloadStocks = downloadStocks;
 exports.getTotalPrincipal = getTotalPrincipal;

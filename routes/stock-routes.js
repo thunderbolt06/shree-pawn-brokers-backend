@@ -17,6 +17,9 @@ router.post(
 router.post(
   '/del',stockController.delStock
 );
+router.get(
+    '/downloadstocks',stockController.downloadStocks
+  );
 
 
 
